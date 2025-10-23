@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Element Animation 검색</title>
+
+    <!-- 1. Google 커스텀 검색 스크립트 (요청하신 코드) -->
+    <!-- 이 스크립트는 검색 결과('gcse-searchresults-only')와 검색창('data-searchresults-gname')을 연결합니다. -->
+    <script async src="https://cse.google.com/cse.js?cx=a766441461ad64cfd"></script>
+
+    <style>
+        /* 기본 스타일 및 전체 레이아웃 */
+        body {
+            background-color: #202124; /* 구글 다크 모드 배경색 */
+            font-family: Arial, sans-serif;
+            color: #e8eaed;
+            display: flex;
+            /* 검색 결과가 아래에 표시되므로 align-items: center 제거 */
+            justify-content: center;
+            flex-direction: column; /* 컨텐츠를 세로로 정렬 */
+            align-items: center; /* 수평 중앙 정렬 */
+            min-height: 100vh; /* 화면 전체 높이 */
+            margin: 0;
+            padding-top: 50px; /* 상단 여백 */
+            position: relative; /* 언어 설정 배치를 위해 relative 설정 */
+        }
+
+        /* 언어 설정 컨테이너 */
+        .language-container {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+            font-size: 13px;
+        }
+
+        /* 언어 링크 스타일 */
+        .language-container a {
+            color: #bdc1c6; /* 약간 더 밝은 회색 */
+            text-decoration: none;
+        }
+
+        .language-container a:hover {
+            text-decoration: underline;
+            color: #e8eaed;
+        }
+        
+        /* 활성 언어 스타일 */
+        .language-container a.active {
+            color: #8ab4f8; /* 파란색으로 활성 표시 */
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        /* 모든 요소를 감싸는 중앙 정렬 컨테이너 */
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* padding-top: 50px; 제거 (body로 이동) */
+        }
+
+        /* 로고 이미지 */
+        .logo {
+            /* 이미지 원본 비율(473x98)을 고려하여 너비 설정 */
+            width: 400px;  
+            max-width: 90%; /* 모바일 대응 */
+            margin-bottom: 30px;
+        }
+
+        /* 검색창 컨테이너 */
+        .search-bar {
+            display: flex;
+            align-items: center;
+            border: 1px solid #5f6368; /* 테두리 */
+            border-radius: 24px;       /* 둥근 모서리 */
+            width: 580px;
+            max-width: 90%; /* 모바일 대응 */
+            height: 44px;
+            padding: 0 16px;
+            margin-bottom: 30px;
+            box-sizing: border-box; /* 패딩이 너비에 포함되도록 설정 */
+        }
+
+        /* 검색창 호버 효과 */
+        .search-bar:hover {
+            background-color: #303134;
+            border-color: #303134;
+        }
+
+        /* 검색창 내부 아이콘 공통 스타일 */
+        .search-bar svg {
+            fill: #9aa0a6; /* 기본 아이콘 색상 */
+            height: 20px;
+            width: 20px;
+            flex-shrink: 0; /* 아이콘이 찌그러지지 않도록 설정 */
+        }
+
+        /* 검색창 내부 텍스트 입력 필드 */
+        .search-bar input[type="text"] {
+            flex-grow: 1; /* 남은 공간 모두 차지 */
+            background-color: transparent;
+            border: none;
+            outline: none;
+            color: #e8eaed; /* 입력 텍스트 색상 */
+            font-size: 16px;
+            margin-left: 15px;
+            width: 100%; /* 너비 100%로 유연하게 */
+        }
+        
+        /* placeholder 텍스트 스타일 */
+        .search-bar input[type="text"]::placeholder {
+            color: #9aa0a6; /* placeholder 색상 */
+            opacity: 1; /* Firefox에서 기본 투명도 제거 */
+        }
+
+        /* 마이크, 카메라 아이콘 스타일 */
+        .search-bar .icon-right {
+            fill: #8ab4f8; /* 이미지 속 파란색 아이콘 */
+            height: 24px;
+            width: 24px;
+            margin-left: 15px;
+            cursor: pointer;
+        }
+        
+        /* 버튼들을 감싸는 컨테이너 */
+        .button-container {
+            display: flex;
+            gap: 12px; /* 버튼 사이 간격 */
+        }
+
+        /* 버튼 기본 스타일 */
+        .button-container button {
+            background-color: #303134;
+            border: 1px solid #303134;
+            border-radius: 4px;
+            color: #e8eaed;
+            font-size: 14px;
+            padding: 10px 16px;
+            cursor: pointer;
+            font-family: Arial, sans-serif;
+        }
+
+        /* 버튼 호버 효과 */
+        .button-container button:hover {
+            border-color: #5f6368;
+        }
+
+        /* --- 2. 검색 결과 컨테이너 스타일 (추가) --- */
+        #search-results-container {
+            width: 600px;
+            max-width: 90%;
+            margin-top: 30px;
+            background-color: transparent; /* 배경을 투명하게 */
+        }
+
+        /* Google CSE 결과 스타일 오버라이드 (다크 모드 적용) */
+        .gsc-control-cse {
+            background-color: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+        }
+        .gsc-tabsArea, .gsc-above-wrapper-area {
+            border-bottom: 1px solid #5f6368 !important;
+        }
+        .gsc-tabHeader {
+            color: #9aa0a6 !important;
+        }
+        .gsc-tabHeader.gsc-tab-active {
+            color: #8ab4f8 !important;
+            border-bottom: 2px solid #8ab4f8 !important;
+        }
+        .gs-webResult.gs-result, .gsc-results .gsc-imageResult {
+            background-color: #2a2b2e !important; /* 결과 아이템 배경 */
+            border: 1px solid #5f6368 !important; /* 결과 아이템 테두리 */
+            border-radius: 8px;
+            padding: 16px !important;
+            margin-bottom: 12px !important;
+        }
+        .gs-webResult .gs-title, .gs-webResult .gs-title *,
+        .gsc-imageResult .gs-title, .gsc-imageResult .gs-title * {
+            color: #8ab4f8 !important; /* 링크 색상 */
+            text-decoration: none !important;
+        }
+        .gs-webResult .gs-title:hover, .gs-webResult .gs-title:hover * {
+            text-decoration: underline !important;
+        }
+        .gs-webResult .gs-snippet, .gs-webResult .gs-visibleUrl {
+            color: #bdc1c6 !important; /* 스니펫, URL 색상 */
+        }
+        .gsc-cursor-page {
+            color: #9aa0a6 !important;
+        }
+        .gsc-cursor-current-page {
+            color: #e8eaed !important;
+        }
+        .gsc-results .gsc-cursor-box {
+            border-top: 1px solid #5f6368 !important;
+        }
+        /* --- 스타일 수정 끝 --- */
+
+    </style>
+</head>
+<body>
+
+    <!-- 1. 언어 설정 -->
+    <div class="language-container">
+        <a href="#" class="lang-link" data-lang="en">English</a>
+        <a href="#" class="lang-link" data-lang="es">Español</a>
+        <a href="#" class="lang-link" data-lang="ko">한국어</a>
+    </div>
+
+    <div class="main-container">
+        
+        <!-- 2. 로고 이미지 -->
+        <img src="https://i.namu.wiki/i/mtKZkYjXOkOSucsGg-sU8mveeLfN8b0ixNCdibuiCKx5ga_bkh_dW975wxxnEyArrlGh2No7AuLX3W_PX-8gNg.webp" alt="Element Animation Logo" class="logo">
+
+        <!-- 3. 검색창 -->
+        <div class="search-bar">
+            <!-- 검색 아이콘 (SVG) -->
+            <svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+            </svg>
+            
+            <!-- 
+              3-1. 텍스트 입력 필드 (수정)
+              'data-searchresults-gname'을 추가하여 'my-search'라는 이름으로 검색 결과와 연결합니다.
+            -->
+            <input type="text" placeholder="검색어를 입력하세요" id="search-input" data-searchresults-gname="my-search">
+            
+            <!-- 마이크 아이콘 (SVG) -->
+            <svg class="icon-right" focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="m12 15c1.66 0 3-1.34 3-3v-6c0-1.66-1.34-3-3-3s-3 1.34-3 3v6c0 1.66 1.34 3 3 3z"></path><path d="m11 18.92h2v3.08h-2z"></path><path d="m7.05 16.87c-1.27-1.33-2.05-3.05-2.05-4.87h2c0 1.45 0.56 2.82 1.57 3.83z"></path><path d="m12 16.93a4.97 4.97 0 0 1 -3.54-1.46l-1.41 1.41a6.98 6.98 0 0 0 9.9-0.12l-1.41-1.41a4.97 4.97 0 0 1 -3.54 1.58z"></path>
+            </svg>
+            
+            <!-- 카메라 아이콘 (SVG) -->
+            <svg class="icon-right" focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M13.17 6H11v2h2.17l5.42 5.42L19 13V6h-5.83zM11 8v2h2v-2H11z" opacity=".3"></path><path d="M11 14H9v-2H7v2H5v2h2v2h2v-2h2v-2zm8-1.59L15.59 9H13v2h2.17l3.42 3.42.41-.41zM11 10H9V8h2v2zm10-5H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H3V7h18v14z"></path>
+            </svg>
+        </div>
+
+        <!-- 4. 버튼 컨테이너 (lucky-btn id 제거) -->
+        <div class="button-container">
+            <button id="search-btn">Search</button>
+            <button>I'm Feeling Lucky</button>
+        </div>
+
+    </div>
+
+    <!-- 
+      5. 검색 결과가 표시될 컨테이너 (추가)
+      'class="gcse-searchresults-only"'는 Google 스크립트가 인식하는 클래스입니다.
+      'data-gname="my-search"'를 통해 위의 검색창('data-searchresults-gname')과 연결됩니다.
+    -->
+    <div id="search-results-container" class="gcse-searchresults-only" data-gname="my-search"></div>
+
+
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 번역 텍스트 객체
+            const translations = {
+                'en': {
+                    placeholder: 'Enter search term',
+                    search: 'Search',
+                    lucky: "I'm Feeling Lucky"
+                },
+                'es': {
+                    placeholder: 'Introducir término de búsqueda',
+                    search: 'Buscar',
+                    lucky: 'Me siento con suerte'
+                },
+                'ko': {
+                    placeholder: '검색어를 입력하세요',
+                    search: 'Search', // 구글은 'Google 검색'이지만, 기존 디자인 유지를 위해 'Search' 사용
+                    lucky: "I'm Feeling Lucky"
+                }
+            };
+
+            // DOM 요소 선택
+            const searchInput = document.getElementById('search-input');
+            const searchBtn = document.getElementById('search-btn');
+            const luckyBtn = document.querySelector('.button-container button:last-child'); // 'I'm Feeling Lucky' 버튼 선택
+            const langLinks = document.querySelectorAll('.lang-link');
+
+            // 언어 설정 함수
+            function setLanguage(lang) {
+                // 'en-US', 'ko-KR' 등에서 'en', 'ko'만 추출
+                const shortLang = lang.split('-')[0];
+                
+                // 지원되는 언어인지 확인, 아니면 영어(en)로 기본 설정
+                const selectedLang = translations[shortLang] ? shortLang : 'en';
+                
+                const texts = translations[selectedLang];
+
+                // 텍스트 적용
+                searchInput.placeholder = texts.placeholder;
+                searchBtn.textContent = texts.search;
+                luckyBtn.textContent = texts.lucky;
+                
+                // HTML lang 속성 변경 (웹 접근성)
+                document.documentElement.lang = selectedLang;
+
+                // 활성 언어 링크 스타일 업데이트
+                langLinks.forEach(link => {
+                    if (link.dataset.lang === selectedLang) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
+            }
+
+            // 1. 브라우저 기본 언어로 초기 설정
+            setLanguage(navigator.language);
+
+            // 2. 언어 링크에 클릭 이벤트 추가 (이 부분이 새로 추가되었습니다)
+            langLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault(); // 링크의 기본 동작(페이지 이동) 방지
+                    const selectedLang = e.target.dataset.lang; // 클릭된 링크의 data-lang 값 가져오기
+                    setLanguage(selectedLang); // 해당 언어로 텍스트 변경
+                });
+            });
+
+            // --- 3. Google 검색 실행 함수 (수정) ---
+            function executeSearch(query) {
+                // Google CSE 스크립트가 로드되었는지, 쿼리가 있는지 확인
+                if (query && window.google && google.search.cse) {
+                    // 'my-search'는 우리가 HTML의 data-gname에 지정한 이름입니다.
+                    const element = google.search.cse.element.getElement('my-search');
+                    if (element) {
+                        element.execute(query); // 검색 실행
+                    }
+                }
+            }
+
+            // --- 4. Google 검색 버튼 클릭 이벤트 (수정) ---
+            searchBtn.addEventListener('click', (e) => {
+                e.preventDefault(); // 버튼 기본 동작 방지
+                const query = searchInput.value.trim();
+                executeSearch(query); // 검색 함수 호출
+            });
+
+            // --- 5. Enter 키 누름 이벤트 (수정) ---
+            searchInput.addEventListener('keydown', (e) => {
+                // e.key === 'Enter' 는 엔터 키를 눌렀는지 확인합니다.
+                if (e.key === 'Enter') {
+                    e.preventDefault(); // 엔터 키의 기본 동작(예: 줄바꿈) 방지
+                    const query = searchInput.value.trim();
+                    executeSearch(query); // 검색 함수 호출
+                }
+            });
+
+            // --- 6. I'm Feeling Lucky 버튼 클릭 이벤트 (추가) ---
+            luckyBtn.addEventListener('click', (e) => {
+                e.preventDefault(); // 버튼 기본 동작 방지
+                const query = searchInput.value.trim();
+                if (query) {
+                    // CSE는 페이지 내 결과 표시에 최적화되어 있어,
+                    // Google 기본 검색의 "I'm Feeling Lucky" 기능(첫 번째 결과로 리디렉션)을 사용합니다.
+                    const url = `https://www.google.com/search?q=${encodeURIComponent(query)}&btnI=1`;
+                    // 새 탭이 아닌 현재 탭에서 바로 이동합니다.
+                    window.location.href = url;
+                }
+            });
+            // --- JS 수정 끝 ---
+        });
+    </script>
+
+</body>
+</html>
+
+
+
+
+
