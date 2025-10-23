@@ -90,6 +90,20 @@
             border-color: #303134;
         }
 
+        /* --- 7. 음성 검색 활성 스타일 (추가) --- */
+        /* 음성 인식이 활성화되었을 때 마이크 아이콘 스타일 */
+        .search-bar.listening .mic-icon {
+            fill: #f88a8a; /* 빨간색으로 변경 */
+            animation: pulse 1.5s infinite; /* 깜빡이는 효과 */
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        /* --- 스타일 수정 끝 --- */
+
         /* 검색창 내부 아이콘 공통 스타일 */
         .search-bar svg {
             fill: #9aa0a6; /* 기본 아이콘 색상 */
@@ -201,6 +215,89 @@
         }
         /* --- 스타일 수정 끝 --- */
 
+        /* --- 8. 이미지 검색 모달 스타일 (추가) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            /* 기본적으로 숨김 */
+            display: none; 
+        }
+
+        .modal-content {
+            background-color: #303134;
+            padding: 24px;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            color: #9aa0a6;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .modal-close:hover {
+            color: #e8eaed;
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+            color: #e8eaed;
+        }
+        .modal-content p {
+            color: #bdc1c6;
+            font-size: 14px;
+        }
+
+        .modal-input-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-input-container input[type="text"] {
+            flex-grow: 1;
+            padding: 10px 14px;
+            background-color: #202124;
+            border: 1px solid #5f6368;
+            border-radius: 4px;
+            color: #e8eaed;
+            font-size: 14px;
+            outline: none;
+        }
+        .modal-input-container input[type="text"]:focus {
+            border-color: #8ab4f8;
+        }
+
+        .modal-input-container button {
+            background-color: #8ab4f8;
+            color: #202124;
+            border: none;
+            border-radius: 4px;
+            padding: 0 16px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .modal-input-container button:hover {
+            opacity: 0.9;
+        }
+        /* --- 스타일 수정 끝 --- */
+
     </style>
 </head>
 <body>
@@ -217,31 +314,28 @@
         <!-- 2. 로고 이미지 -->
         <img src="https://i.namu.wiki/i/mtKZkYjXOkOSucsGg-sU8mveeLfN8b0ixNCdibuiCKx5ga_bkh_dW975wxxnEyArrlGh2No7AuLX3W_PX-8gNg.webp" alt="Element Animation Logo" class="logo">
 
-        <!-- 3. 검색창 -->
+        <!-- 3. 검색창 (수정: input 및 mic-icon 복원) -->
         <div class="search-bar">
             <!-- 검색 아이콘 (SVG) -->
             <svg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
             </svg>
             
-            <!-- 
-              3-1. 텍스트 입력 필드 (수정)
-              'data-searchresults-gname'을 추가하여 'my-search'라는 이름으로 검색 결과와 연결합니다.
-            -->
+            <!-- 텍스트 입력 필드 (id="search-input" 추가) -->
             <input type="text" placeholder="검색어를 입력하세요" id="search-input" data-searchresults-gname="my-search">
             
-            <!-- 마이크 아이콘 (SVG) -->
-            <svg class="icon-right" focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <!-- 마이크 아이콘 (SVG) - (id, class, title 추가) -->
+            <svg id="mic-icon" class="icon-right mic-icon" focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" title="음성 검색">
                 <path d="m12 15c1.66 0 3-1.34 3-3v-6c0-1.66-1.34-3-3-3s-3 1.34-3 3v6c0 1.66 1.34 3 3 3z"></path><path d="m11 18.92h2v3.08h-2z"></path><path d="m7.05 16.87c-1.27-1.33-2.05-3.05-2.05-4.87h2c0 1.45 0.56 2.82 1.57 3.83z"></path><path d="m12 16.93a4.97 4.97 0 0 1 -3.54-1.46l-1.41 1.41a6.98 6.98 0 0 0 9.9-0.12l-1.41-1.41a4.97 4.97 0 0 1 -3.54 1.58z"></path>
             </svg>
-            
-            <!-- 카메라 아이콘 (SVG) -->
-            <svg class="icon-right" focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+            <!-- 카메라 아이콘 (SVG) - (id, title 수정) -->
+            <svg id="camera-icon" class="icon-right" focusable="false" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" title="이미지로 검색">
                 <path d="M13.17 6H11v2h2.17l5.42 5.42L19 13V6h-5.83zM11 8v2h2v-2H11z" opacity=".3"></path><path d="M11 14H9v-2H7v2H5v2h2v2h2v-2h2v-2zm8-1.59L15.59 9H13v2h2.17l3.42 3.42.41-.41zM11 10H9V8h2v2zm10-5H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H3V7h18v14z"></path>
             </svg>
         </div>
 
-        <!-- 4. 버튼 컨테이너 (lucky-btn id 제거) -->
+        <!-- 4. 버튼 컨테이너 -->
         <div class="button-container">
             <button id="search-btn">Search</button>
             <button>I'm Feeling Lucky</button>
@@ -255,6 +349,20 @@
       'data-gname="my-search"'를 통해 위의 검색창('data-searchresults-gname')과 연결됩니다.
     -->
     <div id="search-results-container" class="gcse-searchresults-only" data-gname="my-search"></div>
+
+
+    <!-- 6. 이미지 검색 모달 (추가) -->
+    <div id="image-search-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="modal-close" id="modal-close-btn">&times;</span>
+            <h3 id="modal-title">이미지로 검색</h3>
+            <p id="modal-desc">검색할 이미지 URL을 붙여넣으세요.</p>
+            <div class="modal-input-container">
+                <input type="text" id="image-url-input" placeholder="https://example.com/image.png">
+                <button id="image-search-btn">검색</button>
+            </div>
+        </div>
+    </div>
 
 
     <!-- JavaScript -->
@@ -279,13 +387,38 @@
                 }
             };
 
+            // --- 8. 모달 번역 텍스트 추가 ---
+            translations['en'].modalTitle = 'Search by image';
+            translations['en'].modalDesc = 'Paste an image URL to search';
+            translations['en'].modalBtn = 'Search';
+            translations['es'].modalTitle = 'Buscar por imagen';
+            translations['es'].modalDesc = 'Pegar una URL de imagen para buscar';
+            translations['es'].modalBtn = 'Buscar';
+            translations['ko'].modalTitle = '이미지로 검색';
+            translations['ko'].modalDesc = '검색할 이미지 URL을 붙여넣으세요.';
+            translations['ko'].modalBtn = '검색';
+            // --- 번역 텍스트 추가 끝 ---
+
+
             // DOM 요소 선택
             const searchInput = document.getElementById('search-input');
             const searchBtn = document.getElementById('search-btn');
-            const luckyBtn = document.querySelector('.button-container button:last-child'); // 'I'm Feeling Lucky' 버튼 선택
+            const luckyBtn = document.querySelector('.button-container button:last-child');
             const langLinks = document.querySelectorAll('.lang-link');
+            const micIcon = document.getElementById('mic-icon'); // 마이크 아이콘 DOM 선택
+            const searchBar = document.querySelector('.search-bar'); // 검색창 DOM 선택
 
-            // 언어 설정 함수
+            // --- 8. 모달 DOM 요소 선택 (추가) ---
+            const cameraIcon = document.getElementById('camera-icon');
+            const imageModal = document.getElementById('image-search-modal');
+            const closeModalBtn = document.getElementById('modal-close-btn');
+            const imageUrlInput = document.getElementById('image-url-input');
+            const imageSearchModalBtn = document.getElementById('image-search-btn');
+            const modalTitle = document.getElementById('modal-title');
+            const modalDesc = document.getElementById('modal-desc');
+            // --- 모달 DOM 선택 끝 ---
+
+            // 언어 설정 함수 (모달 텍스트 번역 추가)
             function setLanguage(lang) {
                 // 'en-US', 'ko-KR' 등에서 'en', 'ko'만 추출
                 const shortLang = lang.split('-')[0];
@@ -296,11 +429,20 @@
                 const texts = translations[selectedLang];
 
                 // 텍스트 적용
-                searchInput.placeholder = texts.placeholder;
+                // (오류 방지) searchInput이 존재하는지 확인 후 placeholder 설정
+                if (searchInput) {
+                    searchInput.placeholder = texts.placeholder;
+                }
                 searchBtn.textContent = texts.search;
                 luckyBtn.textContent = texts.lucky;
+
+                // --- 8. 모달 텍스트 적용 (추가) ---
+                modalTitle.textContent = texts.modalTitle;
+                modalDesc.textContent = texts.modalDesc;
+                imageSearchModalBtn.textContent = texts.modalBtn;
+                // --- 모달 텍스트 적용 끝 ---
                 
-                // HTML lang 속성 변경 (웹 접근성)
+                // HTML lang 속성 변경 (웹 접근성 및 음성인식 언어 설정용)
                 document.documentElement.lang = selectedLang;
 
                 // 활성 언어 링크 스타일 업데이트
@@ -345,25 +487,124 @@
             });
 
             // --- 5. Enter 키 누름 이벤트 (수정) ---
-            searchInput.addEventListener('keydown', (e) => {
-                // e.key === 'Enter' 는 엔터 키를 눌렀는지 확인합니다.
-                if (e.key === 'Enter') {
-                    e.preventDefault(); // 엔터 키의 기본 동작(예: 줄바꿈) 방지
-                    const query = searchInput.value.trim();
-                    executeSearch(query); // 검색 함수 호출
+            // (오류 방지) searchInput이 존재하는지 확인 후 이벤트 리스너 추가
+            if (searchInput) {
+                searchInput.addEventListener('keydown', (e) => {
+                    // e.key === 'Enter' 는 엔터 키를 눌렀는지 확인합니다.
+                    if (e.key === 'Enter') {
+                        e.preventDefault(); // 엔터 키의 기본 동작(예: 줄바꿈) 방지
+                        const query = searchInput.value.trim();
+                        executeSearch(query); // 검색 함수 호출
+                    }
+                });
+            }
+
+            // --- 6. "I'm Feeling Lucky" 버튼 클릭 이벤트 (복원) ---
+            luckyBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const query = searchInput.value.trim();
+                if (query) {
+                    // Google의 'I'm Feeling Lucky' URL로 리디렉션
+                    const url = `https://www.google.com/search?q=${encodeURIComponent(query)}&btnI`;
+                    window.location.href = url;
                 }
             });
 
-            // --- 6. I'm Feeling Lucky 버튼 클릭 이벤트 (추가) ---
-            luckyBtn.addEventListener('click', (e) => {
-                e.preventDefault(); // 버튼 기본 동작 방지
-                const query = searchInput.value.trim();
-                if (query) {
-                    // CSE는 페이지 내 결과 표시에 최적화되어 있어,
-                    // Google 기본 검색의 "I'm Feeling Lucky" 기능(첫 번째 결과로 리디렉션)을 사용합니다.
-                    const url = `https://www.google.com/search?q=${encodeURIComponent(query)}&btnI=1`;
-                    // 새 탭이 아닌 현재 탭에서 바로 이동합니다.
+            // --- 7. 음성 검색 기능 (기존) ---
+            
+            // 웹 음성 API 지원 확인 (Chrome은 webkit 접두사 필요)
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            let recognition;
+
+            // (오류 방지) micIcon이 존재하는지 확인
+            if (SpeechRecognition && micIcon) {
+                recognition = new SpeechRecognition();
+                
+                // 음성 인식이 끝나면 호출됨
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript; // 인식된 음성 텍스트
+                    if (searchInput) {
+                        searchInput.value = transcript; // 검색창에 텍스트 입력
+                    }
+                    executeSearch(transcript); // 즉시 검색 실행
+                };
+
+                // 음성 인식이 시작될 때
+                recognition.onstart = () => {
+                    searchBar.classList.add('listening'); // 'listening' 클래스 추가 (아이콘 스타일 변경)
+                };
+
+                // 음성 인식이 끝날 때 (오류가 나도 호출됨)
+                recognition.onend = () => {
+                    searchBar.classList.remove('listening'); // 'listening' 클래스 제거
+                };
+
+                // 오류 발생 시
+                recognition.onerror = (event) => {
+                    console.error("음성 인식 오류:", event.error);
+                    searchBar.classList.remove('listening');
+                };
+
+                // 마이크 아이콘 클릭 이벤트
+                micIcon.addEventListener('click', () => {
+                    try {
+                        // 현재 설정된 언어로 음성 인식 언어 설정
+                        recognition.lang = document.documentElement.lang;
+                        recognition.start(); // 음성 인식 시작
+                    } catch (e) {
+                        console.error("음성 인식 시작 오류:", e);
+                        searchBar.classList.remove('listening');
+                    }
+                });
+
+            } else {
+                console.warn("이 브라우저는 음성 인식을 지원하지 않습니다.");
+                // 지원하지 않는 경우 마이크 아이콘을 숨기거나 비활성화할 수 있습니다.
+                if (micIcon) {
+                    micIcon.style.display = 'none';
+                }
+            }
+            
+            // --- 8. 이미지 검색 모달 기능 (추가) ---
+
+            // (오류 방지) cameraIcon이 존재하는지 확인
+            if (cameraIcon) {
+                // 카메라 아이콘 클릭: 모달 열기
+                cameraIcon.addEventListener('click', () => {
+                    imageModal.style.display = 'flex';
+                    imageUrlInput.value = ''; // 입력창 비우기
+                    imageUrlInput.focus();
+                });
+            }
+
+            // 모달 닫기 버튼
+            closeModalBtn.addEventListener('click', () => {
+                imageModal.style.display = 'none';
+            });
+
+            // 모달 바깥쪽 클릭 시 닫기
+            imageModal.addEventListener('click', (e) => {
+                if (e.target === imageModal) {
+                    imageModal.style.display = 'none';
+                }
+            });
+
+            // 모달 내 '검색' 버튼 클릭: Google Lens로 리디렉션
+            imageSearchModalBtn.addEventListener('click', () => {
+                const imageUrl = imageUrlInput.value.trim();
+                if (imageUrl) {
+                    // Google Lens (역방향 이미지 검색) URL로 리디렉션
+                    const url = `https://lens.google.com/uploadbyurl?url=${encodeURIComponent(imageUrl)}`;
                     window.location.href = url;
+                    imageModal.style.display = 'none'; // 검색 후 모달 닫기
+                }
+            });
+
+            // 모달 내 입력창에서 Enter 키
+            imageUrlInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    imageSearchModalBtn.click(); // 검색 버튼 클릭 트리거
                 }
             });
             // --- JS 수정 끝 ---
@@ -372,8 +613,4 @@
 
 </body>
 </html>
-
-
-
-
 
